@@ -33,8 +33,8 @@ export async function gpt(
             ],
             temperature: 0.7,
         })
-        console.log(tripData.getPrompt())
-        console.log(result.data.choices[0].message?.content)
+        // console.log(tripData.getPrompt())
+        // console.log(result.data.choices[0].message?.content)
         return result.data.choices[0].message?.content
     } catch (error) {
         if (error.response) {
