@@ -24,3 +24,11 @@ export interface UserType {
     firstName: string
     lastName: string
 }
+
+export interface ItineraryType {
+    name: string
+    address: string
+    estimatedDuration: string
+    estimatedStartTime: string
+    description: string
+}

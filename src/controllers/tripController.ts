@@ -7,6 +7,8 @@ const googleKey = process.env.GOOGLE_API_KEY
 const openAiKey = process.env.OPEN_AI_KEY
 
 import { Client } from '@googlemaps/google-maps-services-js'
+import ItineraryEvent from '@src/models/ItineraryEvent'
+import { addItinerary } from '@src/util/firebase-itineraries-fns'
 
 interface LatLng {
     latitude: number
@@ -196,7 +198,7 @@ export const createTrip: RequestHandler = async (
                 endTime
             )
             let totalTime = 0
-            let selectedActivities = [] // Array to hold the selected activities
+            let itineraryEvents: ItineraryEvent[] = [] // Array to hold the selected activities
 
             for (let i = 0; i < activities.length; i++) {
                 const activity = activities[i]
@@ -214,11 +216,12 @@ export const createTrip: RequestHandler = async (
                     activity.transitTime = transitTime
                     totalTime +=
                         parseInt(activity.estimatedDuration[0]) + transitTime
-                    selectedActivities.push(activity) // Only add the activity if it doesn't exceed the available time
+                    itineraryEvents.push(new ItineraryEvent(activity)) // Only add the activity if it doesn't exceed the available time
                 }
             }
-
-            res.json({ activities: selectedActivities })
+            await getPlacePhotos(itineraryEvents)
+            const id = await addItinerary(itineraryEvents)
+            res.json(id)
         } else {
             console.log('data is undefined')
         }
@@ -251,4 +254,51 @@ export const test: RequestHandler = async (
         })
 
     res.json({ message: 'Hello World from trips!' })
+}
+
+const getPlacePhoto = async (location: string): Promise<string | undefined> => {
+    const fields = [
+        'formatted_address',
+        'name',
+        'rating',
+        'opening_hours',
+        'geometry',
+        'photos',
+    ]
+
+    const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?fields=${fields}&input=${location}&inputtype=textquery&key=${googleKey}`
+
+    try {
+        const response = await fetch(url)
+        const data = await response.json()
+
+        if (data.status === 'OK') {
+            let photoRef = data.candidates[0].photos[0].photo_reference
+
+            const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoRef}&key=${googleKey}`
+
+            const photoResponse = await fetch(photoUrl)
+
+            return photoResponse.url
+        } else {
+            console.error(`Could not find place`)
+        }
+    } catch (error) {
+        console.error('Error:', error.message)
+    }
+
+    return undefined
+}
+
+export const getPlacePhotos = async (itineraryEvents: ItineraryEvent[]): Promise<void> => {
+    try {
+        await Promise.all(
+            itineraryEvents.map(async (activity: ItineraryEvent) => {
+                const url = await getPlacePhoto(activity.name);
+                activity.photo = url;
+            })
+        )
+    } catch (error) {
+        console.error('Error:', error.message)
+    }
 }
