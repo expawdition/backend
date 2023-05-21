@@ -127,15 +127,17 @@ const calculateDistancesAndDurations = async (
     return results
 }
 
-function calculateTimeDifferenceInHours(time1: string, time2: string): number {
-    const format = 'h:mm A' // Specify the format of the time, e.g., '3:00 PM'
+function calculateTimeDifferenceInMinutes(
+    time1: string,
+    time2: string
+): number {
     const date1 = new Date(`2000/01/01 ${time1}`)
     const date2 = new Date(`2000/01/01 ${time2}`)
 
     const diffInMilliseconds = date2.getTime() - date1.getTime()
-    const diffInHours = diffInMilliseconds / (1000 * 60 * 60)
+    const diffInMinutes = diffInMilliseconds / (1000 * 60)
 
-    return Math.abs(diffInHours)
+    return Math.abs(diffInMinutes)
 }
 
 export const createTrip: RequestHandler = async (
@@ -189,30 +191,34 @@ export const createTrip: RequestHandler = async (
             console.log('Origins:', origins)
             console.log('Destinations:', destinations)
 
-            const timeDifference = calculateTimeDifferenceInHours(
+            const timeDifference = calculateTimeDifferenceInMinutes(
                 startTime,
                 endTime
             )
             let totalTime = 0
+            let selectedActivities = [] // Array to hold the selected activities
 
             for (let i = 0; i < activities.length; i++) {
                 const activity = activities[i]
-                activity.transitTime = calculations[i].duration
+                const transitTime =
+                    i < activities.length - 1 ? calculations[i].duration : 0 // Take into account that the last activity won't have a transit time
 
                 if (
                     totalTime +
                         parseInt(activity.estimatedDuration[0]) +
-                        calculations[i] >
+                        transitTime >
                     timeDifference
                 ) {
                     break
                 } else {
-                    totalTime += parseInt(activity.estimatedDuration[0])
-                    totalTime += calculations[i]
+                    activity.transitTime = transitTime
+                    totalTime +=
+                        parseInt(activity.estimatedDuration[0]) + transitTime
+                    selectedActivities.push(activity) // Only add the activity if it doesn't exceed the available time
                 }
             }
 
-            res.json({ activities: activities })
+            res.json({ activities: selectedActivities })
         } else {
             console.log('data is undefined')
         }
