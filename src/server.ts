@@ -6,8 +6,11 @@ import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import path from 'path'
 import helmet from 'helmet'
-import express, { Request, Response, NextFunction } from 'express'
 import logger from 'jet-logger'
+import dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config()
+
+import express, { Request, Response, NextFunction } from 'express'
 
 import 'express-async-errors'
 
