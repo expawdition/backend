@@ -6,14 +6,14 @@ import { Immutable } from '@src/other/types';
 
 
 const Paths = {
-  Base: '/api',
-  Users: {
-    Base: '/users',
-    Get: '/all',
-    Add: '/add',
-    Update: '/update',
-    Delete: '/delete/:id',
-  },
+    Base: '/api',
+    Users: {
+        Base: '/users',
+        Get: '/all',
+        Add: '/add',
+        Update: '/update',
+        Delete: '/delete/:id',
+    },
 };
 
 
