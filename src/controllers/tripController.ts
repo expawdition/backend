@@ -176,8 +176,17 @@ export const createTrip: RequestHandler = async (
 
     try {
         const dataStr = await gpt(trip, openAiKey)
+
+        console.log('gpt just finished')
+
+        console.log(dataStr)
+
         if (dataStr) {
-            const activities = JSON.parse(dataStr)
+            const activities = JSON.parse(dataStr).itinerary
+
+            console.log('parsed')
+
+            console.log(activities)
 
             const origins = []
             const destinations = []
@@ -223,7 +232,7 @@ export const createTrip: RequestHandler = async (
                 }
             }
             await getPlacePhotos(itineraryEvents)
-            const id = await addItinerary(itineraryEvents)
+            const id = await addItinerary(itineraryEvents, req.body.date)
             res.json(id)
         } else {
             console.log('data is undefined')

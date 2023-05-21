@@ -33,8 +33,10 @@ const getItineraryById = async (
     }
 }
 
+// TODO: add date to firebase itinerary object
 const addItinerary = async (
-    itineraryEvents: ItineraryEvent[]
+    itineraryEvents: ItineraryEvent[],
+    date: any
 ): Promise<string | undefined> => {
     try {
         const itineraryEventsPlain = itineraryEvents.map((event) =>
@@ -42,6 +44,7 @@ const addItinerary = async (
         )
         const docRef = await addDoc(itinerariesRef, {
             itineraryEvents: itineraryEventsPlain,
+            date: date,
         })
         console.log(docRef.id)
         return docRef.id
