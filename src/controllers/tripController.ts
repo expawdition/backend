@@ -1,5 +1,7 @@
 import { Request, Response, RequestHandler, NextFunction } from 'express'
 import fetch from 'node-fetch'
+import gpt from '@src/services/GPTService'
+import TripData from '@src/models/TripData'
 
 const googleKey = process.env.GOOGLE_API_KEY
 const openAiKey = process.env.OPEN_AI_KEY
@@ -85,14 +87,14 @@ const calculateDistanceAndDuration = async (
     return undefined
 }
 
-export const calculateDistancesAndDurations = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
-    let origins = req.body.origins
-    let destinations = req.body.destinations
-    let mode = req.body.mode
+const calculateDistancesAndDurations = async (
+    origins: string[],
+    destinations: string[],
+    mode: string
+): Promise<any> => {
+    // let origins = req.body.origins
+    // let destinations = req.body.destinations
+    // let mode = req.body.mode
 
     const results = []
 
@@ -122,7 +124,20 @@ export const calculateDistancesAndDurations = async (
         }
     }
 
-    res.json(results)
+    return results
+}
+
+function calculateTimeDifferenceInMinutes(
+    time1: string,
+    time2: string
+): number {
+    const date1 = new Date(`2000/01/01 ${time1}`)
+    const date2 = new Date(`2000/01/01 ${time2}`)
+
+    const diffInMilliseconds = date2.getTime() - date1.getTime()
+    const diffInMinutes = diffInMilliseconds / (1000 * 60)
+
+    return Math.abs(diffInMinutes)
 }
 
 export const createTrip: RequestHandler = async (
@@ -130,7 +145,87 @@ export const createTrip: RequestHandler = async (
     res: Response,
     next: NextFunction
 ): Promise<void> => {
-    // openAiKey
+    let destination = req.body.destination
+    let date = req.body.date
+    let startTime = req.body.startTime
+    let endTime = req.body.endTime
+    let numberOfPeople = req.body.numberOfPeople
+    let groupType = req.body.groupType
+    let budget = req.body.budget
+    let transportationMethod = req.body.transportationMethod
+    let mustDo = req.body.mustDo
+    let wheelChairFriendly = req.body.wheelChairFriendly
+
+    const trip = new TripData({
+        destination: destination,
+        date: date,
+        startTime: startTime,
+        endTime: endTime,
+        numberOfPeople: numberOfPeople,
+        groupType: groupType,
+        budget: budget,
+        transportationMethod: transportationMethod,
+        mustDo: mustDo,
+        wheelChairFriendly: wheelChairFriendly,
+    })
+
+    try {
+        const dataStr = await gpt(trip, openAiKey)
+        if (dataStr) {
+            const activities = JSON.parse(dataStr)
+
+            const origins = []
+            const destinations = []
+
+            for (let i = 0; i < activities.length - 1; i++) {
+                origins.push(activities[i].location)
+                destinations.push(activities[i + 1].location)
+            }
+
+            let calculations = await calculateDistancesAndDurations(
+                origins,
+                destinations,
+                transportationMethod
+            )
+
+            console.log('Origins:', origins)
+            console.log('Destinations:', destinations)
+
+            const timeDifference = calculateTimeDifferenceInMinutes(
+                startTime,
+                endTime
+            )
+            let totalTime = 0
+            let selectedActivities = [] // Array to hold the selected activities
+
+            for (let i = 0; i < activities.length; i++) {
+                const activity = activities[i]
+                const transitTime =
+                    i < activities.length - 1 ? calculations[i].duration : 0 // Take into account that the last activity won't have a transit time
+
+                if (
+                    totalTime +
+                        parseInt(activity.estimatedDuration[0]) +
+                        transitTime >
+                    timeDifference
+                ) {
+                    break
+                } else {
+                    activity.transitTime = transitTime
+                    totalTime +=
+                        parseInt(activity.estimatedDuration[0]) + transitTime
+                    selectedActivities.push(activity) // Only add the activity if it doesn't exceed the available time
+                }
+            }
+
+            res.json({ activities: selectedActivities })
+        } else {
+            console.log('data is undefined')
+        }
+    } catch (e) {
+        console.log(e)
+        next(e)
+    }
 }
 
 export const test: RequestHandler = async (
