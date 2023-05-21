@@ -1,8 +1,8 @@
-import express from "express";
-const router = express.Router();
+import express from 'express'
+const router = express.Router()
 
-import { test } from "../controllers/tripController";
+import { test } from '../controllers/tripController'
 
-router.get("/", test);
+router.get('/', test)
 
-export default router;
+export default router
