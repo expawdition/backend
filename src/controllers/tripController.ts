@@ -177,8 +177,6 @@ export const createTrip: RequestHandler = async (
     try {
         const dataStr = await gpt(trip, openAiKey)
 
-        console.log(dataStr)
-
         if (dataStr) {
             const data = JSON.parse(dataStr)
             const activities = data.itinerary;
