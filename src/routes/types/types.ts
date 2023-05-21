@@ -19,3 +19,8 @@ export interface IRes extends e.Response {
         sessionUser: ISessionUser
     }
 }
+
+export interface UserType {
+    firstName: string
+    lastName: string
+}
