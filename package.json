@@ -39,6 +39,7 @@
     "jsonfile": "^6.1.0",
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",
+    "openai": "^3.2.1",
     "ts-command-line-args": "^2.5.0"
   },
   "devDependencies": {
