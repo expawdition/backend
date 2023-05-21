@@ -8,7 +8,7 @@ const openAiKey = process.env.OPEN_AI_KEY
 
 import { Client } from '@googlemaps/google-maps-services-js'
 import ItineraryEvent from '@src/models/ItineraryEvent'
-import { addItinerary } from '@src/util/firebase-itineraries-fns'
+import { addItinerary, getItineraryById } from '@src/util/firebase-itineraries-fns'
 
 interface LatLng {
     latitude: number
@@ -298,6 +298,21 @@ export const getPlacePhotos = async (itineraryEvents: ItineraryEvent[]): Promise
                 activity.photo = url;
             })
         )
+    } catch (error) {
+        console.error('Error:', error.message)
+    }
+}
+
+export const getTrip: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    console.log('hi');
+    let itineraryId = req.params.id;
+    try {
+        let itinerary = await getItineraryById(itineraryId);
+        res.json(itinerary);
     } catch (error) {
         console.error('Error:', error.message)
     }
