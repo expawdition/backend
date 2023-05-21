@@ -3,7 +3,7 @@ import TripData from '../models/TripData'
 
 // **** Variables **** //
 const configuration = new Configuration({
-    apiKey: "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"
+    apiKey: process.env.OPENAI_KEY
 })
 const openai = new OpenAIApi(configuration)
 
@@ -37,24 +37,6 @@ export async function gpt(tripData: TripData): Promise<string | undefined | void
     }
 }
 
-let tripData = new TripData(
-    {
-        destination: "Vancouver",
-        date: "August 10, 2023",
-        startTime: "10AM",
-        endTime: "9PM",
-        numberOfPeople: 10,
-        groupType: 'family',
-        budget: "$$",
-        transportationMethod: 'car',
-        mustDo: 'nothing',
-        wheelChairFriendly: false
-    }
-)
-
-gpt(tripData);
 // **** Export default **** //
 
-export default {
-    gpt,
-} as const
+export default gpt;
