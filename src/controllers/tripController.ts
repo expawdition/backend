@@ -177,16 +177,11 @@ export const createTrip: RequestHandler = async (
     try {
         const dataStr = await gpt(trip, openAiKey)
 
-        console.log('gpt just finished')
-
         console.log(dataStr)
 
         if (dataStr) {
-            const activities = JSON.parse(dataStr).itinerary
-
-            console.log('parsed')
-
-            console.log(activities)
+            const data = JSON.parse(dataStr)
+            const activities = data.itinerary;
 
             const origins = []
             const destinations = []
@@ -201,9 +196,6 @@ export const createTrip: RequestHandler = async (
                 destinations,
                 transportationMethod
             )
-
-            console.log('Origins:', origins)
-            console.log('Destinations:', destinations)
 
             const timeDifference = calculateTimeDifferenceInMinutes(
                 startTime,
@@ -322,7 +314,6 @@ export const getTrip: RequestHandler = async (
     res: Response,
     next: NextFunction
 ): Promise<void> => {
-    console.log('hi')
     let itineraryId = req.params.id
     try {
         let itinerary = await getItineraryById(itineraryId)
