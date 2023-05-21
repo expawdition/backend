@@ -79,9 +79,32 @@ const updateItineraryById = async (
     }
 }
 
+const getAllItineraries = async (): Promise<DocumentData[]> => {
+    try {
+        const querySnapshot = await getDocs(collection(db, 'itineraries'))
+        const itineraries: DocumentData[] = []
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            itineraries.push({
+                ...data,
+                id: doc.id,
+            })
+        })
+
+        // Sort itineraries array by date
+        itineraries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+        return itineraries
+    } catch (e) {
+        console.log('Error getting itineraries.', e)
+        return []
+    }
+}
+
 export {
     addItinerary,
     getItineraryById,
+    getAllItineraries,
     removeItineraryById,
     updateItineraryById,
 }

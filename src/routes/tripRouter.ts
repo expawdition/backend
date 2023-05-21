@@ -1,9 +1,9 @@
 import express from 'express'
 const router = express.Router()
 
-import { test, createTrip, getTrip } from '../controllers/tripController'
+import { createTrip, getTrip, getAllTrips } from '../controllers/tripController'
 
-router.get('/', test)
+router.get('/all', getAllTrips)
 
 // router.post('/distances', calculateDistancesAndDurations)
 

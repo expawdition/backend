@@ -11,6 +11,7 @@ import ItineraryEvent from '@src/models/ItineraryEvent'
 import {
     addItinerary,
     getItineraryById,
+    getAllItineraries
 } from '@src/util/firebase-itineraries-fns'
 
 interface LatLng {
@@ -176,10 +177,16 @@ export const createTrip: RequestHandler = async (
 
     try {
         const dataStr = await gpt(trip, openAiKey)
-
+        console.log(dataStr);
         if (dataStr) {
             const data = JSON.parse(dataStr)
-            const activities = data.itinerary;
+            let activities: any;
+
+            if (Array.isArray(data)) {
+                activities = data;
+            } else {
+                activities = Object.values(data)[0];
+            }
 
             const origins = []
             const destinations = []
@@ -299,7 +306,7 @@ export const getPlacePhotos = async (
         await Promise.all(
             itineraryEvents.map(async (activity: ItineraryEvent) => {
                 const url = await getPlacePhoto(activity.name)
-                activity.photo = url
+                activity.photo = url || "https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg"
             })
         )
     } catch (error) {
@@ -316,6 +323,19 @@ export const getTrip: RequestHandler = async (
     try {
         let itinerary = await getItineraryById(itineraryId)
         res.json(itinerary)
+    } catch (error) {
+        console.error('Error:', error.message)
+    }
+}
+
+export const getAllTrips: RequestHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        let itineraries = await getAllItineraries()
+        res.json(itineraries)
     } catch (error) {
         console.error('Error:', error.message)
     }
