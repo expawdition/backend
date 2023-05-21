@@ -75,13 +75,14 @@ export default class TripData {
             this.wheelChairFriendly
                 ? 'In terms of accessibility, it is important that our itinerary is wheelchair-friendly'
                 : ''
-        }. Could you help us draft an itinerary that would maximize our experience? Could you suggest a list of places to visit and activities to do, keeping in mind the types of activities and general geographic proximity? By estimating approximate transit times between each destination using ${ this.transportationMethod } and estimating the average duration that a group of our size will usually spend here, make sure the trip can be finished within the time frame of ${ this.startTime } to ${ this.endTime }. PLease return the itinerary back as a JSON object with an array of results. This is what the JSON should look like: [
+        }. Could you suggest an itinerary, including places to visit and activities to do, organized in a logical sequence based on the types of activities and their general geographic proximity? Please consider rough transit times between locations using our preferred mode of transportation. For each item, provide the name of the place, a brief description of why we should visit or what we could do there, an estimated duration of the visit, a suggested start time, and a rough estimated transit time to the next location, keeping in mind our start and end times. PLease return the itinerary back as a JSON object with an array of results. This is what the JSON should look like: [
 			{
 			  "name": "name of place",
 			  "location": "address",
 			  "estimatedDuration": "1 hour 30 minutes",
 			  "estimatedStartTime": "10 AM"
-			  "description": "why you should come here or what you should do"
+			  "description": "why you should come here or what you should do",
+			  "transitTime": "30 minutes"
 			},
 			{
 			  "name": "name of place",
@@ -89,6 +90,7 @@ export default class TripData {
 			  "estimatedDuration": "2 hours",
 			  "estimatedStartTime": "12 PM",
 			  "description": ""why you should come here or what you should do"
+			  "transitTime": "30 minutes"
 			}]. Do NOT return any other information.
         `
         return prompt

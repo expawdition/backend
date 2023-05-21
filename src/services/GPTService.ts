@@ -3,7 +3,7 @@ import TripData from '../models/TripData'
 
 // **** Variables **** //
 const configuration = new Configuration({
-    apiKey: process.env.OPENAI_KEY,
+    apiKey: "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"
 })
 const openai = new OpenAIApi(configuration)
 
@@ -24,6 +24,7 @@ export async function gpt(tripData: TripData): Promise<string | undefined | void
             ],
             temperature: 0.7,
         })
+        console.log(result.data.choices[0].message?.content);
         return result.data.choices[0].message?.content
     } catch (error) {
         if (error.response) {
@@ -35,6 +36,25 @@ export async function gpt(tripData: TripData): Promise<string | undefined | void
         return error
     }
 }
+
+let tripData = new TripData(
+    {
+        destination: "Vancouver",
+        date: "August 10, 2023",
+        startTime: "10AM",
+        endTime: "9PM",
+        numberOfPeople: 10,
+        groupType: 'family',
+        budget: "$$",
+        transportationMethod: 'car',
+        mustDo: 'nothing',
+        wheelChairFriendly: false
+    }
+)
+
+gpt(tripData);
 // **** Export default **** //
 
-export default gpt
+export default {
+    gpt,
+} as const
