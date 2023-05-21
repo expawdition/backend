@@ -127,6 +127,17 @@ const calculateDistancesAndDurations = async (
     return results
 }
 
+function calculateTimeDifferenceInHours(time1: string, time2: string): number {
+    const format = 'h:mm A' // Specify the format of the time, e.g., '3:00 PM'
+    const date1 = new Date(`2000/01/01 ${time1}`)
+    const date2 = new Date(`2000/01/01 ${time2}`)
+
+    const diffInMilliseconds = date2.getTime() - date1.getTime()
+    const diffInHours = diffInMilliseconds / (1000 * 60 * 60)
+
+    return Math.abs(diffInHours)
+}
+
 export const createTrip: RequestHandler = async (
     req: Request,
     res: Response,
@@ -159,14 +170,14 @@ export const createTrip: RequestHandler = async (
     try {
         const dataStr = await gpt(trip, openAiKey)
         if (dataStr) {
-            const data = JSON.parse(dataStr)
+            const activities = JSON.parse(dataStr)
 
             const origins = []
             const destinations = []
 
-            for (let i = 0; i < data.length - 1; i++) {
-                origins.push(data[i].location)
-                destinations.push(data[i + 1].location)
+            for (let i = 0; i < activities.length - 1; i++) {
+                origins.push(activities[i].location)
+                destinations.push(activities[i + 1].location)
             }
 
             let calculations = await calculateDistancesAndDurations(
@@ -178,7 +189,30 @@ export const createTrip: RequestHandler = async (
             console.log('Origins:', origins)
             console.log('Destinations:', destinations)
 
-            res.json({ calculations: calculations })
+            const timeDifference = calculateTimeDifferenceInHours(
+                startTime,
+                endTime
+            )
+            let totalTime = 0
+
+            for (let i = 0; i < activities.length; i++) {
+                const activity = activities[i]
+                activity.transitTime = calculations[i].duration
+
+                if (
+                    totalTime +
+                        parseInt(activity.estimatedDuration[0]) +
+                        calculations[i] >
+                    timeDifference
+                ) {
+                    break
+                } else {
+                    totalTime += parseInt(activity.estimatedDuration[0])
+                    totalTime += calculations[i]
+                }
+            }
+
+            res.json({ activities: activities })
         } else {
             console.log('data is undefined')
         }
