@@ -1,22 +1,25 @@
 import { Configuration, OpenAIApi } from 'openai'
+import TripData from '../models/TripData'
+
 // **** Variables **** //
-
-// Errors
-
-// **** Functions **** //
 const configuration = new Configuration({
-    apiKey: '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',
+    apiKey: process.env.OPENAI_KEY,
 })
 const openai = new OpenAIApi(configuration)
 
-export async function gpt(): Promise<string | undefined> {
+// **** Functions **** //
+export async function gpt(tripData: TripData): Promise<string | undefined | void> {
     try {
         const result = await openai.createChatCompletion({
             model: 'gpt-3.5-turbo',
             messages: [
                 {
+                    role: 'system',
+                    content: 'You are an experienced travel agent that speaks only in JSON. Do not speak normal text.'
+                },
+                {
                     role: 'user',
-                    content: 'Create an itinerary for a day trip in New York',
+                    content: tripData.getPrompt(),
                 },
             ],
             temperature: 0.7,
@@ -24,18 +27,14 @@ export async function gpt(): Promise<string | undefined> {
         return result.data.choices[0].message?.content
     } catch (error) {
         if (error.response) {
-            console.log(error.response.status)
-            console.log(error.response.data)
+            console.error(`Error Status: ${error.response.status}`)
+            console.error(`Error Data: ${error.response.data}`)
         } else {
-            console.log(error.message)
+            console.error(`Error Message: ${error.message}`)
         }
+        return error
     }
 }
-
-gpt()
-
 // **** Export default **** //
 
-export default {
-    gpt,
-} as const
+export default gpt
