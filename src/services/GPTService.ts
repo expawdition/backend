@@ -2,20 +2,29 @@ import { Configuration, OpenAIApi } from 'openai'
 import TripData from '../models/TripData'
 
 // **** Variables **** //
-const configuration = new Configuration({
-    apiKey: process.env.OPENAI_KEY
-})
-const openai = new OpenAIApi(configuration)
+// const configuration = new Configuration({
+//     apiKey: process.env.OPENAI_KEY,
+// })
+// const openai = new OpenAIApi(configuration)
 
 // **** Functions **** //
-export async function gpt(tripData: TripData): Promise<string | undefined | void> {
+export async function gpt(
+    tripData: TripData,
+    key?: string
+): Promise<string | undefined | void> {
+    const configuration = new Configuration({
+        apiKey: key,
+    })
+    const openai = new OpenAIApi(configuration)
+
     try {
         const result = await openai.createChatCompletion({
             model: 'gpt-3.5-turbo',
             messages: [
                 {
                     role: 'system',
-                    content: 'You are an experienced travel agent that speaks only in JSON. Do not speak normal text.'
+                    content:
+                        'You are an experienced travel agent that speaks only in JSON. Do not speak normal text.',
                 },
                 {
                     role: 'user',
@@ -24,7 +33,7 @@ export async function gpt(tripData: TripData): Promise<string | undefined | void
             ],
             temperature: 0.7,
         })
-        console.log(result.data.choices[0].message?.content);
+        console.log(result.data.choices[0].message?.content)
         return result.data.choices[0].message?.content
     } catch (error) {
         if (error.response) {
@@ -39,4 +48,4 @@ export async function gpt(tripData: TripData): Promise<string | undefined | void
 
 // **** Export default **** //
 
-export default gpt;
+export default gpt

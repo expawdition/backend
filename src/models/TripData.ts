@@ -7,7 +7,7 @@ export default class TripData {
     public groupType: string
     public budget: string
     public transportationMethod: string
-    public mustDo: string[]
+    public mustDo: string
     public wheelChairFriendly: boolean
 
     constructor(data: any) {
@@ -20,19 +20,19 @@ export default class TripData {
         // Set the group type
         switch (data.groupType) {
             case 'family':
-                this.groupType = "we're a family";
+                this.groupType = "we're a family"
                 break
             case 'date':
-                this.groupType = "we're dating";
+                this.groupType = "we're dating"
                 break
             case 'coworkers':
-                this.groupType = "we're coworkers";
+                this.groupType = "we're coworkers"
                 break
             case 'solo adventure':
-                this.groupType = 'i am travelling alone';
+                this.groupType = 'i am travelling alone'
                 break
-			default:
-				this.groupType = "we're a group of friends";
+            default:
+                this.groupType = "we're a group of friends"
         }
 
         // Set the budget based on the input data
@@ -69,9 +69,7 @@ export default class TripData {
             this.budget
         } budget. We prefer to get around by ${
             this.transportationMethod
-        }, and one place we absolutely must visit is ${
-            this.mustDo
-        }. ${
+        }, and one place we absolutely must visit is ${this.mustDo}. ${
             this.wheelChairFriendly
                 ? 'In terms of accessibility, it is important that our itinerary is wheelchair-friendly'
                 : ''
