@@ -9,7 +9,7 @@ import UserRoutes from './UserRoutes';
 // **** Variables **** //
 
 const apiRouter = Router(),
-  validate = jetValidator();
+    validate = jetValidator();
 
 
 // ** Add UserRouter ** //
@@ -18,29 +18,29 @@ const userRouter = Router();
 
 // Get all users
 userRouter.get(
-  Paths.Users.Get,
-  UserRoutes.getAll,
+    Paths.Users.Get,
+    UserRoutes.getAll,
 );
 
 // Add one user
 userRouter.post(
-  Paths.Users.Add,
-  validate(['user', User.isUser]),
-  UserRoutes.add,
+    Paths.Users.Add,
+    validate(['user', User.isUser]),
+    UserRoutes.add,
 );
 
 // Update one user
 userRouter.put(
-  Paths.Users.Update,
-  validate(['user', User.isUser]),
-  UserRoutes.update,
+    Paths.Users.Update,
+    validate(['user', User.isUser]),
+    UserRoutes.update,
 );
 
 // Delete one user
 userRouter.delete(
-  Paths.Users.Delete,
-  validate(['id', 'number', 'params']),
-  UserRoutes.delete,
+    Paths.Users.Delete,
+    validate(['id', 'number', 'params']),
+    UserRoutes.delete,
 );
 
 // Add UserRouter
